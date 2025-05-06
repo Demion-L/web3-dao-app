@@ -10,7 +10,7 @@ declare global {
 }
 
 interface WalletConnectProps {
-  onConnect: (address: string, provider: ethers.BrowserProvider) => void;
+  onConnect: (address: string) => void;
 }
 
 export default function WalletConnect({ onConnect }: WalletConnectProps) {
@@ -27,7 +27,7 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
     const address = await signer.getAddress();
 
     setAccount(address);
-    onConnect(address, provider);
+    onConnect(address);
   };
 
   return (
