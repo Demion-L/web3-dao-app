@@ -12,4 +12,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## Learn More
 npx -y @upstash/context7-mcp@latest
 
+## Deployed to Vercel
+
+https://web3-dao-app.vercel.app/
+
 ```
