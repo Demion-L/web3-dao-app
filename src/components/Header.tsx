@@ -15,23 +15,26 @@ export default function Header() {
   const walletAddress = useSelector((state: RootState) => state.wallet.account);
 
   return (
-    <header>
-      <h1 className='text-4xl font-bold mb-2'>🗳️ DAO Voting DApp</h1>
-      <p className='text-lg text-gray-600'>Create proposals. Vote. Govern.</p>
-      <p className='text-lg text-gray-600'>
-        Connect your wallet to get started.
-      </p>
-      <div className='flex items-center gap-4 mt-4'>
-        <ThemeSwitcher />
-        <WalletConnect
-          onConnect={(address: string) => {
-            dispatch(connectWallet(address));
-          }}
-          onDisconnect={() => {
-            dispatch(connectWallet(""));
-          }}
-          walletAddress={walletAddress}
-        />
+    <header className='border-b border-gray-200 pb-4'>
+      <div className='flex items-center justify-between'>
+        <div>
+          <h1 className='text-2xl font-bold'>🗳️ DAO Voting DApp</h1>
+          <p className='text-sm text-gray-600'>
+            Create proposals. Vote. Govern.
+          </p>
+        </div>
+        <div className='flex items-center gap-4'>
+          <ThemeSwitcher />
+          <WalletConnect
+            onConnect={(address: string) => {
+              dispatch(connectWallet(address));
+            }}
+            onDisconnect={() => {
+              dispatch(connectWallet(""));
+            }}
+            walletAddress={walletAddress}
+          />
+        </div>
       </div>
     </header>
   );

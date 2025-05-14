@@ -5,22 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { connectWallet, disconnectWallet } from "../store/features/walletSlice";
 import { RootState } from "../store/store";
 import { WalletConnectProps } from "@/types/wallet";
-import { useEffect, useState } from "react";
-
-declare global {
-  interface Window {
-    ethereum?: ethers.Eip1193Provider & {
-      on: (
-        event: "accountsChanged" | "chainChanged",
-        callback: (accounts: string[] | string) => void
-      ) => void;
-      removeListener: (
-        event: "accountsChanged" | "chainChanged",
-        callback: (accounts: string[] | string) => void
-      ) => void;
-    };
-  }
-}
+import { useEffect, useState, useCallback } from "react";
+import { formatAddress } from "@/utils/format";
 
 export default function WalletConnect({
   onConnect,
@@ -31,18 +17,20 @@ export default function WalletConnect({
   const account = useSelector((state: RootState) => state.wallet.account);
   const [isMounted, setIsMounted] = useState(false);
 
+  const handleDisconnectWallet = useCallback(() => {
+    dispatch(disconnectWallet());
+    onDisconnect?.();
+  }, [dispatch, onDisconnect]);
+
   useEffect(() => {
     setIsMounted(true);
 
-    // Listen for account changes
     if (window.ethereum) {
       const handleAccountsChanged = (accounts: string[] | string) => {
         const accountArray = Array.isArray(accounts) ? accounts : [accounts];
         if (accountArray.length === 0) {
-          // User disconnected their wallet
           handleDisconnectWallet();
         } else {
-          // User switched accounts
           dispatch(connectWallet(accountArray[0]));
           onConnect?.(accountArray[0]);
         }
@@ -65,7 +53,7 @@ export default function WalletConnect({
         }
       };
     }
-  }, [dispatch, onConnect]);
+  }, [dispatch, onConnect, handleDisconnectWallet]);
 
   const handleConnectWallet = async () => {
     if (!window.ethereum) {
@@ -85,11 +73,6 @@ export default function WalletConnect({
     }
   };
 
-  const handleDisconnectWallet = () => {
-    dispatch(disconnectWallet());
-    onDisconnect?.();
-  };
-
   if (!isMounted) {
     return null;
   }
@@ -98,10 +81,15 @@ export default function WalletConnect({
     <div className={className}>
       {account ? (
         <div className='flex items-center gap-4'>
-          <p className='text-green-600'>Connected: {account}</p>
+          <div className='flex items-center gap-2'>
+            <div className='w-2 h-2 rounded-full bg-green-500'></div>
+            <span className='text-sm font-mono text-gray-700'>
+              {formatAddress(account)}
+            </span>
+          </div>
           <button
             onClick={handleDisconnectWallet}
-            className='px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition'>
+            className='px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition'>
             Disconnect
           </button>
         </div>
