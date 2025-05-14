@@ -5,6 +5,7 @@ import { getEthBalance } from '../../utils/ethereum';
 const initialState: WalletState = {
   account: null,
   isConnected: false,
+  balance:null,
 };
 
 export const fetchBalance = createAsyncThunk(
@@ -28,11 +29,11 @@ const walletSlice = createSlice({
       state.isConnected = false;
     },
   },
-  //  extraReducers: (builder) => {
-  //   builder.addCase(fetchBalance.fulfilled, (state, action) => {
-  //     state.balance = action.payload;
-  //   });
-  // },
+   extraReducers: (builder) => {
+    builder.addCase(fetchBalance.fulfilled, (state, action) => {
+      state.balance = action.payload;
+    });
+  },
 });
 
 export const { connectWallet, disconnectWallet } = walletSlice.actions;

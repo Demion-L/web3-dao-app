@@ -1,10 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import WalletConnect from "../components/WalletConnect";
+import { useDispatch, useSelector } from "react-redux";
+import dynamic from "next/dynamic";
+import { connectWallet } from "@/store/features";
+import { RootState } from "@/store/store";
+import { useEffect, useState } from "react";
+
+const WalletConnect = dynamic(() => import("../components/WalletConnect"), {
+  ssr: false,
+});
 
 export default function Home() {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const dispatch = useDispatch();
+  const walletAddress = useSelector((state: RootState) => state.wallet.account);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <main className='min-h-screen bg-gray-100 text-gray-900 p-6'>
@@ -18,8 +35,8 @@ export default function Home() {
 
         <section className='bg-white shadow p-6 rounded-lg'>
           <WalletConnect
-            onConnect={(address) => {
-              setWalletAddress(address);
+            onConnect={(address: string) => {
+              dispatch(connectWallet(address));
             }}
           />
         </section>

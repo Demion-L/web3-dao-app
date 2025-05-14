@@ -4,6 +4,8 @@ import { ethers } from "ethers";
 import { useDispatch, useSelector } from "react-redux";
 import { connectWallet } from "../store/features/walletSlice";
 import { RootState } from "../store/store";
+import { WalletConnectProps } from "@/types/wallet";
+import { useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -11,9 +13,14 @@ declare global {
   }
 }
 
-export default function WalletConnect() {
+export default function WalletConnect({ onConnect }: WalletConnectProps) {
   const dispatch = useDispatch();
   const account = useSelector((state: RootState) => state.wallet.account);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleConnectWallet = async () => {
     if (!window.ethereum) {
@@ -26,11 +33,16 @@ export default function WalletConnect() {
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
 
-      dispatch(connectWallet(address)); // Redux handles state updates
+      dispatch(connectWallet(address));
+      onConnect?.(address);
     } catch (error) {
       console.error("Failed to connect wallet:", error);
     }
   };
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div>
