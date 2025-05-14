@@ -1,4 +1,3 @@
-
 export interface WalletState {
   account: string | null;
   isConnected: boolean;
@@ -8,4 +7,7 @@ export interface WalletState {
 
 export interface WalletConnectProps {
   onConnect?: (address: string) => void;
+  onDisconnect?: () => void;
+  walletAddress?: string | null;
+  className?: string;
 }
