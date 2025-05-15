@@ -10,8 +10,8 @@ export default function Header() {
       <div className='flex justify-between items-center'>
         <div className='flex flex-col gap-4'>
           <h1 className='text-2xl font-bold text-primary'>DAO Voting</h1>
-          <p className='text-sm text-gray-500 dark:text-gray-100'>
-            Vote. Propose. Governe.
+          <p className='text-sm text-gray-500 dark:text-gray-400'>
+            Decentralized Governance
           </p>
         </div>
 
