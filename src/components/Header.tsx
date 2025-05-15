@@ -6,7 +6,7 @@ import { Navigation } from "./ui/Navigation";
 
 export default function Header() {
   return (
-    <header className='card p-4 rounded-lg'>
+    <header className='card w-4/5 xl:w-3/4 mt-4 p-4 rounded-lg mx-auto'>
       <div className='flex justify-between items-center'>
         <div className='flex flex-col gap-4'>
           <h1 className='text-2xl font-bold text-primary'>DAO Voting</h1>
