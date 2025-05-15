@@ -47,12 +47,12 @@ export function Navigation({ className = "" }: NavigationProps) {
       </button>
 
       {/* Desktop Navigation */}
-      <nav className={`hidden lg:flex items-center gap-4 ${className}`}>
+      <nav className={`hidden lg:flex items-center gap-4 ${className} mr-6`}>
         {links.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className='text-gray-700 hover:text-gray-900 transition-colors'>
+            className='text-gray-700 dark:text-gray-100 hover:text-gray-900 transition-colors'>
             {link.label}
           </Link>
         ))}
