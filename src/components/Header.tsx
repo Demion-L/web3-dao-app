@@ -1,39 +1,22 @@
 "use client";
 
-import { useDispatch, useSelector } from "react-redux";
-import dynamic from "next/dynamic";
-import { connectWallet } from "@/store/features";
-import { RootState } from "@/store/store";
+import WalletConnect from "./WalletConnect";
 import ThemeSwitcher from "./ThemeSwitcher";
-
-const WalletConnect = dynamic(() => import("./WalletConnect"), {
-  ssr: false,
-});
+import { Navigation } from "./ui/Navigation";
 
 export default function Header() {
-  const dispatch = useDispatch();
-  const walletAddress = useSelector((state: RootState) => state.wallet.account);
-
   return (
-    <header className='border-b border-gray-200 pb-4'>
-      <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-2xl font-bold'>🗳️ DAO Voting DApp</h1>
-          <p className='text-sm text-gray-600'>
-            Create proposals. Vote. Govern.
-          </p>
+    <header className='card p-4 rounded-lg'>
+      <div className='flex justify-between items-center'>
+        <div className='flex flex-col gap-4'>
+          <h1 className='text-2xl font-bold text-primary'>DAO Voting</h1>
+          <p className='text-sm text-gray-500'>Decentralized Governance</p>
         </div>
+
         <div className='flex items-center gap-4'>
+          <Navigation />
           <ThemeSwitcher />
-          <WalletConnect
-            onConnect={(address: string) => {
-              dispatch(connectWallet(address));
-            }}
-            onDisconnect={() => {
-              dispatch(connectWallet(""));
-            }}
-            walletAddress={walletAddress}
-          />
+          <WalletConnect className='px-4 py-2 rounded' />
         </div>
       </div>
     </header>

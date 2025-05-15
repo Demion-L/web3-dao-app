@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "@/styles/theme.css";
 import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DAO Voting DApp",
-  description: "Create proposals. Vote. Govern.",
+  title: "DAO Voting App",
+  description: "A decentralized voting application for DAOs",
 };
 
 export default function RootLayout({
@@ -16,8 +17,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='en'>
-      <body className={inter.className}>
+    <html
+      lang='en'
+      suppressHydrationWarning>
+      <body className={`${inter.className} antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

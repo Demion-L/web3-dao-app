@@ -19,22 +19,24 @@ export default function Home() {
   }
 
   return (
-    <div className='min-h-screen flex flex-col'>
-      <main className='flex-1 bg-gray-100 text-gray-900 p-6'>
+    <div className='min-h-screen flex flex-col bg-background-primary'>
+      <main className='flex-1 p-6'>
         <div className='max-w-4xl mx-auto space-y-8'>
           <Header />
 
           {walletAddress && (
-            <section className='bg-white shadow p-6 rounded-lg'>
-              <h2 className='text-2xl font-semibold mb-4'>Proposals</h2>
-              <p className='text-gray-600'>
+            <section className='card p-6 rounded-lg'>
+              <h2 className='text-2xl font-semibold mb-4 text-primary'>
+                Proposals
+              </h2>
+              <p className='text-secondary'>
                 You are connected as{" "}
-                <span className='font-mono'>{walletAddress}</span>
+                <span className='font-mono text-primary'>{walletAddress}</span>
               </p>
 
               {/* Next: list of proposals will go here */}
-              <div className='mt-4 border-t pt-4'>
-                <p>No proposals yet.</p>
+              <div className='mt-4 border-t border-theme pt-4'>
+                <p className='text-secondary'>No proposals yet.</p>
               </div>
             </section>
           )}

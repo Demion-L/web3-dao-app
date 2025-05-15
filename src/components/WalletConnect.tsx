@@ -7,6 +7,7 @@ import { RootState } from "../store/store";
 import { WalletConnectProps } from "@/types/wallet";
 import { useEffect, useState, useCallback } from "react";
 import { formatAddress } from "@/utils/format";
+import { Button } from "./ui/Button";
 
 export default function WalletConnect({
   onConnect,
@@ -87,18 +88,19 @@ export default function WalletConnect({
               {formatAddress(account)}
             </span>
           </div>
-          <button
+          <Button
             onClick={handleDisconnectWallet}
-            className='px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition'>
+            variant='danger'
+            size='sm'>
             Disconnect
-          </button>
+          </Button>
         </div>
       ) : (
-        <button
+        <Button
           onClick={handleConnectWallet}
-          className='px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition'>
+          variant='primary'>
           Connect Wallet
-        </button>
+        </Button>
       )}
     </div>
   );
