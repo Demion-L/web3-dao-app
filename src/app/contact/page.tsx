@@ -13,7 +13,7 @@ export default function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
+    // Todo: Handle form submission logic here
     console.log("Form submitted:", formData);
   };
 
@@ -31,7 +31,9 @@ export default function ContactPage() {
 
         <div className='grid md:grid-cols-2 gap-8'>
           <div>
-            <h2 className='text-xl font-semibold mb-4'>Get in Touch</h2>
+            <h2 className='text-xl text-primary font-semibold mb-4'>
+              Get in Touch
+            </h2>
             <p className='text-gray-600 dark:text-gray-300 mb-6'>
               Have questions about our DAO voting platform? We&apos;re here to
               help! Fill out the form and we&apos;ll get back to you as soon as
@@ -40,19 +42,19 @@ export default function ContactPage() {
 
             <div className='space-y-4'>
               <div>
-                <h3 className='font-medium'>Email</h3>
+                <h3 className='font-medium text-primary'>Email</h3>
                 <p className='text-gray-600 dark:text-gray-300'>
                   support@daovoting.com
                 </p>
               </div>
               <div>
-                <h3 className='font-medium'>Discord</h3>
+                <h3 className='font-medium text-primary'>Discord</h3>
                 <p className='text-gray-600 dark:text-gray-300'>
                   Join our community
                 </p>
               </div>
               <div>
-                <h3 className='font-medium'>Twitter</h3>
+                <h3 className='font-medium text-primary'>Twitter</h3>
                 <p className='text-gray-600 dark:text-gray-300'>@DAOVoting</p>
               </div>
             </div>
@@ -64,7 +66,7 @@ export default function ContactPage() {
             <div>
               <label
                 htmlFor='name'
-                className='block text-sm font-medium mb-1'>
+                className='block text-sm text-primary font-medium mb-1'>
                 Name
               </label>
               <input
@@ -73,7 +75,7 @@ export default function ContactPage() {
                 name='name'
                 value={formData.name}
                 onChange={handleChange}
-                className='w-full p-2 border rounded-lg bg-white/50 dark:bg-gray-800/50'
+                className='w-full p-2 border rounded-lg bg-gray-100 text-primary dark:bg-gray-800/50'
                 required
               />
             </div>
@@ -81,7 +83,7 @@ export default function ContactPage() {
             <div>
               <label
                 htmlFor='email'
-                className='block text-sm font-medium mb-1'>
+                className='block text-sm text-primary font-medium mb-1'>
                 Email
               </label>
               <input
@@ -90,7 +92,7 @@ export default function ContactPage() {
                 name='email'
                 value={formData.email}
                 onChange={handleChange}
-                className='w-full p-2 border rounded-lg bg-white/50 dark:bg-gray-800/50'
+                className='w-full p-2 border rounded-lg bg-gray-100 text-primary dark:bg-gray-800/50'
                 required
               />
             </div>
@@ -98,7 +100,7 @@ export default function ContactPage() {
             <div>
               <label
                 htmlFor='subject'
-                className='block text-sm font-medium mb-1'>
+                className='block text-sm text-primary font-medium mb-1'>
                 Subject
               </label>
               <input
@@ -107,7 +109,7 @@ export default function ContactPage() {
                 name='subject'
                 value={formData.subject}
                 onChange={handleChange}
-                className='w-full p-2 border rounded-lg bg-white/50 dark:bg-gray-800/50'
+                className='w-full p-2 border rounded-lg bg-gray-100 text-primary dark:bg-gray-800/50'
                 required
               />
             </div>
@@ -115,7 +117,7 @@ export default function ContactPage() {
             <div>
               <label
                 htmlFor='message'
-                className='block text-sm font-medium mb-1'>
+                className='block text-sm text-primary font-medium mb-1'>
                 Message
               </label>
               <textarea
@@ -124,7 +126,7 @@ export default function ContactPage() {
                 value={formData.message}
                 onChange={handleChange}
                 rows={4}
-                className='w-full p-2 border rounded-lg bg-white/50 dark:bg-gray-800/50'
+                className='w-full p-2 border text-primary rounded-lg bg-gray-100 dark:bg-gray-800/50'
                 required
               />
             </div>

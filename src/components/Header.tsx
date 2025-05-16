@@ -3,13 +3,18 @@
 import WalletConnect from "./WalletConnect";
 import ThemeSwitcher from "./ThemeSwitcher";
 import { Navigation } from "./ui/Navigation";
+import Link from "next/link";
 
 export default function Header() {
   return (
     <header className='card w-4/5 xl:w-3/4 mt-4 p-4 rounded-lg mx-auto'>
       <div className='flex justify-between items-center'>
         <div className='flex flex-col gap-4'>
-          <h1 className='text-2xl font-bold text-primary'>DAO Voting</h1>
+          <Link
+            href='/'
+            className='text-2xl font-bold text-primary cursor-pointer'>
+            DAO Voting
+          </Link>
           <p className='text-sm text-gray-500 dark:text-gray-400'>
             Decentralized Governance
           </p>

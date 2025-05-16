@@ -10,7 +10,9 @@ export default function AboutPage() {
 
         <div className='space-y-6'>
           <section>
-            <h2 className='text-xl font-semibold mb-3'>Our Mission</h2>
+            <h2 className='text-xl font-semibold mb-3 text-primary'>
+              Our Mission
+            </h2>
             <p className='text-gray-600 dark:text-gray-300'>
               We are building a decentralized governance platform that empowers
               communities to make collective decisions transparently and
@@ -20,7 +22,9 @@ export default function AboutPage() {
           </section>
 
           <section>
-            <h2 className='text-xl font-semibold mb-3'>What is DAO?</h2>
+            <h2 className='text-xl font-semibold mb-3 text-primary'>
+              What is DAO?
+            </h2>
             <p className='text-gray-600 dark:text-gray-300'>
               A DAO (Decentralized Autonomous Organization) is an organization
               represented by rules encoded as a computer program that is
@@ -31,7 +35,9 @@ export default function AboutPage() {
           </section>
 
           <section>
-            <h2 className='text-xl font-semibold mb-3'>Key Features</h2>
+            <h2 className='text-xl font-semibold mb-3 text-primary'>
+              Key Features
+            </h2>
             <ul className='list-disc list-inside space-y-2 text-gray-600 dark:text-gray-300'>
               <li>Transparent voting process</li>
               <li>Secure and immutable records</li>

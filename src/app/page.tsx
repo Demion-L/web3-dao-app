@@ -3,8 +3,6 @@
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { useEffect, useState } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export default function Home() {
   const walletAddress = useSelector((state: RootState) => state.wallet.account);
@@ -22,8 +20,6 @@ export default function Home() {
     <div className='min-h-screen flex flex-col bg-background-primary'>
       <main className='flex-1 p-6'>
         <div className='max-w-4xl mx-auto space-y-8'>
-          <Header />
-
           {walletAddress && (
             <section className='card p-6 rounded-lg'>
               <h2 className='text-2xl font-semibold mb-4 text-primary'>
@@ -42,7 +38,6 @@ export default function Home() {
           )}
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
