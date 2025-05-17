@@ -2,7 +2,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.28",
+  solidity: "0.8.24",
   paths: {
     sources: "../contracts",
     tests: "./test",
@@ -20,7 +20,8 @@ const config: HardhatUserConfig = {
         auto: true,
         interval: 1000, // Mining interval in milliseconds
       },
-    },}
+    },
+  }
     // localhost: {  
 };
 

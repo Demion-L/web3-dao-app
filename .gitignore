@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+**/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -40,7 +41,30 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-#Hardhat
-/cache
-/artifacts
-/hardhat/node_modules
+# Hardhat artifacts
+artifacts/
+cache/
+coverage/
+.solidity-coverage
+typechain/
+typechain-types/
+
+# Foundry artifacts
+out/
+broadcast/
+
+# Shared ignores
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor directories and files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
