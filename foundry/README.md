@@ -66,3 +66,5 @@ $ cast --help
 ```
 
 Testing private key - 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --broadcast -vvvv
