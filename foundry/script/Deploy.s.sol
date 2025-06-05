@@ -4,9 +4,9 @@ pragma solidity ^0.8.24;
 import {Script} from "forge-std/Script.sol";
 import {console} from "forge-std/console.sol";
 import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
-import "../../contracts/token/MyToken.sol";
-import "../../contracts/governance_standard/TimeLock.sol";
-import "../../contracts/governance_standard/GovernorContract.sol";
+import "contracts/token/MyToken.sol";
+import "contracts/governance_standard/TimeLock.sol";
+import "contracts/governance_standard/GovernorContract.sol";
 
 contract DeployScript is Script {
     function run() external {
@@ -28,18 +28,16 @@ contract DeployScript is Script {
         console.log("TimeLock deployed to:", address(timeLock));
 
         // deploy governor
-        address[] memory targets = new address[](0);
-        uint256[] memory values = new uint256[](0);
-        bytes[] memory calldatas = new bytes[](0);
-        bytes32 descriptionHash = bytes32(0);
+        uint256 votingDelay = 1;
+        uint256 votingPeriod = 45818;
+        uint256 quorumPercentage = 4;
 
         GovernorContract governor = new GovernorContract(
-            timeLock,
             token,
-            targets,
-            values,
-            calldatas,
-            descriptionHash
+            timeLock,
+            votingDelay,
+            votingPeriod,
+            quorumPercentage
         );
         console.log("Governor deployed to:", address(governor));
 

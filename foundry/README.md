@@ -66,8 +66,3 @@ $ cast --help
 ```
 
 Testing private key - 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-
-forge create \
- --rpc-url http://localhost:8545 \
- --private-key 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 \
- ../contracts/token/MyToken.sol:MyToken

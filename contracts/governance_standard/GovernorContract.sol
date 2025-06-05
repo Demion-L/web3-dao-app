@@ -23,15 +23,15 @@ contract GovernorContract is
     GovernorTimelockControl
 {
     constructor(
-        MyToken MyToken,
+        MyToken myToken,
         TimelockController _timelock,
         uint256 _votingDelay /* 1 block */,
         uint256 _votingPeriod /* 45818 blocks = ~ ~1 week */,
         uint256 _quorumPercentage /* 4% */
     )
         Governor("GovernorContract")
-        GovernorSettings(_votingDelay, _votingPeriod, 4e18)
-        GovernorVotes(MyToken)
+        GovernorSettings(uint48(_votingDelay), uint32(_votingPeriod), 4e18)
+        GovernorVotes(myToken)
         GovernorVotesQuorumFraction(_quorumPercentage)
         GovernorTimelockControl(_timelock)
     {}
