@@ -45,11 +45,21 @@ $ forge snapshot
 $ anvil
 ```
 
-### Deploy
+### Deploy Foundry
+
+1. Switch to the /foundry and run
 
 ```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+$ anvil
 ```
+
+2. From /foundry folder run next command to deploy all contracts
+
+```shell
+$ forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --broadcast -vvvv
+```
+
+### Deploy Hardhat
 
 ### Cast
 
@@ -64,7 +74,3 @@ $ forge --help
 $ anvil --help
 $ cast --help
 ```
-
-Testing private key - 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-
-forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --broadcast -vvvv
