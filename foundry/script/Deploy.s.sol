@@ -15,7 +15,7 @@ contract DeployScript is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // deploy token
-        MyToken token = new MyToken();
+        MyToken token = new MyToken(msg.sender);
         console.log("Token deployed to:", address(token));
 
         // deploy timelock

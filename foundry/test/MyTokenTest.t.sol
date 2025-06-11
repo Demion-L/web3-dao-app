@@ -28,7 +28,7 @@ contract MyTokenTest is Test {
 
         // Deploy a new contract instance before each test
         vm.startPrank(owner); // Impersonate the owner
-        myToken = new MyToken();
+        myToken = new MyToken(owner); // Pass owner as constructor parameter
         vm.stopPrank(); // Stop impersonating
     }
 

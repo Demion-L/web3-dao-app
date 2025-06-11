@@ -72,34 +72,141 @@ contract TimeLockTest is Test {
     }
 
     /**
-     * @dev Tests that only the admin can update the minimum delay
+     * @dev Tests updating the delay through proper governance process
      * @notice Verifies that:
-     * - The admin can successfully update the delay
-     * - The new delay value is correctly stored
+     * - A proposal can be scheduled to update the delay
+     * - After the delay period, the proposal can be executed
+     * - The delay is updated correctly
      */
-    function test_OnlyAdminCanUpdateDelay() public {
-        vm.startPrank(owner);
-        timeLock.updateDelay(7200);
+    function test_UpdateDelayThroughGovernance() public {
+        uint256 newDelay = 7200; // 2 hours
+
+        // Prepare the call data for updateDelay
+        bytes memory data = abi.encodeWithSignature(
+            "updateDelay(uint256)",
+            newDelay
+        );
+
+        // Create a unique salt for this operation
+        bytes32 salt = keccak256("update_delay_proposal");
+
+        // Calculate the operation ID
+        bytes32 id = timeLock.hashOperation(
+            address(timeLock), // target is the timelock itself
+            0, // value
+            data, // call data
+            bytes32(0), // predecessor
+            salt // salt
+        );
+
+        // Step 1: Schedule the operation (proposer role required)
+        vm.startPrank(proposer);
+        timeLock.schedule(
+            address(timeLock), // target
+            0, // value
+            data, // data
+            bytes32(0), // predecessor
+            salt, // salt
+            MIN_DELAY // delay
+        );
+        vm.stopPrank();
+
+        // Verify the operation is scheduled
+        assertTrue(
+            timeLock.isOperationPending(id),
+            "Operation should be pending"
+        );
+
+        // Step 2: Fast forward time to after the delay
+        vm.warp(block.timestamp + MIN_DELAY + 1);
+
+        // Verify the operation is now ready
+        assertTrue(timeLock.isOperationReady(id), "Operation should be ready");
+
+        // Step 3: Execute the operation (executor role required)
+        vm.startPrank(executor);
+        timeLock.execute(
+            address(timeLock), // target
+            0, // value
+            data, // data
+            bytes32(0), // predecessor
+            salt // salt
+        );
+        vm.stopPrank();
+
+        // Verify the delay was updated
         assertEq(
             timeLock.getMinDelay(),
-            7200,
-            "Delay should be updated by admin"
+            newDelay,
+            "Delay should be updated through governance"
+        );
+
+        // Verify the operation is now done
+        assertTrue(timeLock.isOperationDone(id), "Operation should be done");
+    }
+
+    /**
+     * @dev Tests that non-proposers cannot schedule operations
+     * @notice Verifies that:
+     * - An attacker without proposer privileges cannot schedule operations
+     * - The transaction reverts when attempted by non-proposer
+     */
+    function test_NonProposerCannotSchedule() public {
+        address attacker = makeAddr("attacker");
+
+        bytes memory data = abi.encodeWithSignature(
+            "updateDelay(uint256)",
+            1800
+        );
+        bytes32 salt = keccak256("malicious_proposal");
+
+        vm.startPrank(attacker);
+        vm.expectRevert(); // Expect the next call to fail
+        timeLock.schedule(
+            address(timeLock),
+            0,
+            data,
+            bytes32(0),
+            salt,
+            MIN_DELAY
         );
         vm.stopPrank();
     }
 
     /**
-     * @dev Tests that non-admin users cannot update the minimum delay
+     * @dev Tests that non-executors cannot execute ready operations
      * @notice Verifies that:
-     * - An attacker without admin privileges cannot update the delay
-     * - The transaction reverts when attempted by non-admin
+     * - Even if an operation is ready, non-executors cannot execute it
+     * - The transaction reverts when attempted by non-executor
      */
-    function test_NonAdminCannotUpdateDelay() public {
+    function test_NonExecutorCannotExecute() public {
         address attacker = makeAddr("attacker");
 
+        // First, let's schedule a legitimate operation
+        bytes memory data = abi.encodeWithSignature(
+            "updateDelay(uint256)",
+            7200
+        );
+        bytes32 salt = keccak256("legitimate_proposal");
+
+        vm.startPrank(proposer);
+        timeLock.schedule(
+            address(timeLock),
+            0,
+            data,
+            bytes32(0),
+            salt,
+            MIN_DELAY
+        );
+        vm.stopPrank();
+
+        // Fast forward time
+        vm.warp(block.timestamp + MIN_DELAY + 1);
+
+        // Now try to execute as attacker
         vm.startPrank(attacker);
         vm.expectRevert(); // Expect the next call to fail
-        timeLock.updateDelay(1800);
+        timeLock.execute(address(timeLock), 0, data, bytes32(0), salt);
         vm.stopPrank();
     }
 
