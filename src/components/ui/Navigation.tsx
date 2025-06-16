@@ -13,6 +13,7 @@ export function Navigation({ className = "" }: NavigationProps) {
   const [mounted, setMounted] = useState(false);
 
   const links = [
+    { href: "/", label: "Home" },
     { href: "/about", label: "About" },
     { href: "/faq", label: "FAQ" },
     { href: "/contact", label: "Contact" },

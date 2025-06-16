@@ -89,7 +89,7 @@ The system is built using OpenZeppelin's modular governance system, which allows
 npm install
 ```
 
-2. Configure environment variables:
+2. Configure environment variables in foundry folder (PRIVATE_KEY):
 
 ```bash
 cp .env.example .env

@@ -2,9 +2,9 @@
 
 import { ethers } from "ethers";
 import { useDispatch, useSelector } from "react-redux";
-import { connectWallet, disconnectWallet } from "../store/features/walletSlice";
-import { RootState } from "../store/store";
-import { WalletConnectProps } from "@/types/wallet";
+import { connectWallet, disconnectWallet } from "@/store/features/walletSlice";
+import { RootState } from "@/store/store";
+import { WalletConnectProps } from "@/types/Iwallet";
 import { useEffect, useState, useCallback } from "react";
 import { formatAddress } from "@/utils/format";
 import { Button } from "./ui/Button";
@@ -32,7 +32,8 @@ export default function WalletConnect({
         if (accountArray.length === 0) {
           handleDisconnectWallet();
         } else {
-          dispatch(connectWallet(accountArray[0]));
+          // We'll update the account only, provider and signer will be updated on reconnect
+          dispatch(disconnectWallet());
           onConnect?.(accountArray[0]);
         }
       };
@@ -67,7 +68,7 @@ export default function WalletConnect({
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
 
-      dispatch(connectWallet(address));
+      dispatch(connectWallet({ account: address, provider, signer }));
       onConnect?.(address);
     } catch (error) {
       console.error("Failed to connect wallet:", error);

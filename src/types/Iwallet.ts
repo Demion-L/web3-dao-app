@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, Provider, Signer } from "ethers";
 
 declare global {
   interface Window {
@@ -17,10 +17,11 @@ declare global {
 
 export interface WalletState {
   account: string | null;
+  provider: Provider | null;
+  signer: Signer | null;
   isConnected: boolean;
-  chainId?: number | null;
   balance: string | null;
-} 
+}
 
 export interface WalletConnectProps {
   onConnect?: (address: string) => void;
