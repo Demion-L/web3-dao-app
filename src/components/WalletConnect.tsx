@@ -1,11 +1,8 @@
 "use client";
 
-import { ethers } from "ethers";
-import { useDispatch, useSelector } from "react-redux";
-import { connectWallet, disconnectWallet } from "@/store/features/walletSlice";
-import { RootState } from "@/store/store";
+import { useWallet } from "@/hooks/useWallet";
 import { WalletConnectProps } from "@/types/Iwallet";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { formatAddress } from "@/utils/format";
 import { Button } from "./ui/Button";
 
@@ -14,65 +11,25 @@ export default function WalletConnect({
   onDisconnect,
   className,
 }: WalletConnectProps) {
-  const dispatch = useDispatch();
-  const account = useSelector((state: RootState) => state.wallet.account);
+  const { account, connectWallet, disconnectWallet } = useWallet();
   const [isMounted, setIsMounted] = useState(false);
-
-  const handleDisconnectWallet = useCallback(() => {
-    dispatch(disconnectWallet());
-    onDisconnect?.();
-  }, [dispatch, onDisconnect]);
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
 
-    if (window.ethereum) {
-      const handleAccountsChanged = (accounts: string[] | string) => {
-        const accountArray = Array.isArray(accounts) ? accounts : [accounts];
-        if (accountArray.length === 0) {
-          handleDisconnectWallet();
-        } else {
-          // We'll update the account only, provider and signer will be updated on reconnect
-          dispatch(disconnectWallet());
-          onConnect?.(accountArray[0]);
-        }
-      };
-
-      const handleChainChanged = () => {
-        window.location.reload();
-      };
-
-      window.ethereum.on("accountsChanged", handleAccountsChanged);
-      window.ethereum.on("chainChanged", handleChainChanged);
-
-      return () => {
-        if (window.ethereum) {
-          window.ethereum.removeListener(
-            "accountsChanged",
-            handleAccountsChanged
-          );
-          window.ethereum.removeListener("chainChanged", handleChainChanged);
-        }
-      };
-    }
-  }, [dispatch, onConnect, handleDisconnectWallet]);
-
-  const handleConnectWallet = async () => {
-    if (!window.ethereum) {
-      alert("Please install MetaMask to connect your wallet.");
-      return;
-    }
-
+  const handleConnect = async () => {
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const address = await signer.getAddress();
-
-      dispatch(connectWallet({ account: address, provider, signer }));
-      onConnect?.(address);
+      await connectWallet();
+      onConnect?.(account!);
     } catch (error) {
       console.error("Failed to connect wallet:", error);
     }
+  };
+
+  const handleDisconnect = () => {
+    disconnectWallet();
+    onDisconnect?.();
   };
 
   if (!isMounted) {
@@ -90,7 +47,7 @@ export default function WalletConnect({
             </span>
           </div>
           <Button
-            onClick={handleDisconnectWallet}
+            onClick={handleDisconnect}
             variant='danger'
             size='sm'>
             Disconnect
@@ -98,7 +55,7 @@ export default function WalletConnect({
         </div>
       ) : (
         <Button
-          onClick={handleConnectWallet}
+          onClick={handleConnect}
           variant='primary'>
           Connect Wallet
         </Button>
