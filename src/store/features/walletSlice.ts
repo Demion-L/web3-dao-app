@@ -54,5 +54,8 @@ const walletSlice = createSlice({
   },
 });
 
+// provider is used for read-only calls.
+// signer is used for write (transaction) calls.
+
 export const { connectWallet, disconnectWallet, setAccount, setProvider, setSigner } = walletSlice.actions;
 export default walletSlice.reducer; 
