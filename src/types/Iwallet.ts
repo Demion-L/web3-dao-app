@@ -24,8 +24,7 @@ export interface WalletState {
 }
 
 export interface WalletConnectProps {
+  className?: string;
   onConnect?: (address: string) => void;
   onDisconnect?: () => void;
-  walletAddress?: string | null;
-  className?: string;
 }

@@ -6,11 +6,7 @@ import { useEffect, useState } from "react";
 import { formatAddress } from "@/utils/format";
 import { Button } from "./ui/Button";
 
-export default function WalletConnect({
-  onConnect,
-  onDisconnect,
-  className,
-}: WalletConnectProps) {
+export default function WalletConnect({ className }: WalletConnectProps) {
   const { account, connectWallet, disconnectWallet } = useWallet();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -21,15 +17,9 @@ export default function WalletConnect({
   const handleConnect = async () => {
     try {
       await connectWallet();
-      onConnect?.(account!);
     } catch (error) {
       console.error("Failed to connect wallet:", error);
     }
-  };
-
-  const handleDisconnect = () => {
-    disconnectWallet();
-    onDisconnect?.();
   };
 
   if (!isMounted) {
@@ -47,7 +37,7 @@ export default function WalletConnect({
             </span>
           </div>
           <Button
-            onClick={handleDisconnect}
+            onClick={disconnectWallet}
             variant='danger'
             size='sm'>
             Disconnect

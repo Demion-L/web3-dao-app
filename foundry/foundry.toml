@@ -16,5 +16,12 @@ remappings = [
 
 load_dotenv = true
 
+[rpc_endpoints]
+sepolia = "${SEPOLIA_RPC_URL}"
+local = "http://localhost:8545"
+
+[etherscan]
+sepolia = { key = "${ETHERSCAN_API_KEY}" }
+
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

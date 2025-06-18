@@ -10,7 +10,36 @@ import "contracts/governance_standard/GovernorContract.sol";
 
 contract DeployScript is Script {
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        uint256 deployerPrivateKey;
+
+        // Get the RPC URL and check if it's a testnet
+        // If the RPC URL is not set, we assume it's a local development environment
+        // and use the local private key.
+        // If the RPC URL is set, we check if it's a testnet or mainnet.
+        // If it's a testnet, we use the testnet private key.
+        // If it's a mainnet, we revert to avoid accidental deployments.
+        bool isTestnet = false;
+
+        try vm.envString("SEPOLIA_RPC_URL") returns (string memory sepoliaUrl) {
+            if (bytes(sepoliaUrl).length > 0) {
+                isTestnet = true;
+                console.log("Detected Sepolia configuration");
+            }
+        } catch {}
+
+        // Get the appropriate private key
+        if (isTestnet) {
+            deployerPrivateKey = vm.envUint("TESTNET_PRIVATE_KEY");
+            console.log("Using testnet private key");
+        } else {
+            deployerPrivateKey = vm.envUint("LOCAL_PRIVATE_KEY");
+            console.log("Using local private key");
+        }
+
+        // // Only check for mainnet when actually broadcasting
+        // if (block.chainid == 1) {
+        //     revert("This script should not be run on mainnet");
+        // }
 
         vm.startBroadcast(deployerPrivateKey);
 

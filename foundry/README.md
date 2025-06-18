@@ -59,6 +59,26 @@ $ anvil
 $ forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --broadcast -vvvv
 ```
 
+### Deploy to Sepolia tesnet (dry)
+
+```shell
+$ forge script script/Deploy.s.sol:DeployScript --rpc-url sepolia
+```
+
+### Deploy to Sepolia tesnet
+
+```shell
+$ forge script script/Deploy.s.sol:DeployScript --rpc-url sepolia --broadcast --verify
+```
+
+### Addresses of deployed to Sepolia testnet contracts
+
+```
+  Token deployed to: 0x4B5A4ACDaBCb362780350Aca69Fc80EE4Acb1352
+  TimeLock deployed to: 0xe2b5beB808b4626ea6Ab383Ca461fe1548417691
+  Governor deployed to: 0xa4aE57AE0db3fD34D8468C82eE5eA64207878aD4
+```
+
 ### Deploy Hardhat
 
 ### Cast
