@@ -46,6 +46,10 @@
 - [ ] Implement success/error notifications
 - [ ] Add mobile responsiveness
 - [ ] Create user instructions and tooltips
+- [ ] Add animated transitions (e.g., with Framer Motion)
+- [ ] Animate wallet connection/disconnection
+- [ ] Display proposals in glass cards with neon highlights for status
+- [ ] Add a modal for creating proposals with neon-glow form fields
 
 ### Testing & Deployment
 

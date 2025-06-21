@@ -4,7 +4,7 @@ import { useWallet } from "@/hooks/useWallet";
 import { WalletConnectProps } from "@/types/Iwallet";
 import { useEffect, useState } from "react";
 import { formatAddress } from "@/utils/format";
-import { Button } from "./ui/Button";
+import NeonButton from "@/components/ui/NeonButton";
 
 export default function WalletConnect({ className }: WalletConnectProps) {
   const { account, connectWallet, disconnectWallet } = useWallet();
@@ -36,19 +36,19 @@ export default function WalletConnect({ className }: WalletConnectProps) {
               {formatAddress(account)}
             </span>
           </div>
-          <Button
+          <NeonButton
             onClick={disconnectWallet}
             variant='danger'
             size='sm'>
             Disconnect
-          </Button>
+          </NeonButton>
         </div>
       ) : (
-        <Button
+        <NeonButton
           onClick={handleConnect}
           variant='primary'>
           Connect Wallet
-        </Button>
+        </NeonButton>
       )}
     </div>
   );

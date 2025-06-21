@@ -1,12 +1,22 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Orbitron, Share_Tech_Mono } from "next/font/google";
 import "./globals.css";
 import "@/styles/theme.css";
 import { Providers } from "./providers";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const inter = Inter({ subsets: ["latin"] });
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-orbitron",
+});
+
+const shareTechMono = Share_Tech_Mono({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-share-tech-mono",
+});
 
 export const metadata: Metadata = {
   title: "DAO Voting",
@@ -22,7 +32,8 @@ export default function RootLayout({
     <html
       lang='en'
       suppressHydrationWarning>
-      <body className={`${inter.className} antialiased`}>
+      <body
+        className={`${orbitron.variable} ${shareTechMono.variable} font-sans antialiased`}>
         <Providers>
           <div className='min-h-screen flex flex-col'>
             <Header />
