@@ -11,6 +11,7 @@ import "contracts/governance_standard/GovernorContract.sol";
 contract DeployScript is Script {
     function run() external {
         uint256 deployerPrivateKey;
+        address tokenOwner = vm.envAddress("TOKEN_OWNER");
 
         // Get the RPC URL and check if it's a testnet
         // If the RPC URL is not set, we assume it's a local development environment
@@ -44,7 +45,7 @@ contract DeployScript is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // deploy token
-        MyToken token = new MyToken(msg.sender);
+        MyToken token = new MyToken(tokenOwner);
         console.log("Token deployed to:", address(token));
 
         // deploy timelock

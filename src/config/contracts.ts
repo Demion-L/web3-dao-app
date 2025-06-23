@@ -9,9 +9,9 @@ export const TIMELOCK_ABI = [{"inputs":[{"internalType":"uint256","name":"minDel
 
 // Contract addresses (replace with your deployed contract addresses)
 export const CONTRACT_ADDRESSES = {
-  governor: '0xa4aE57AE0db3fD34D8468C82eE5eA64207878aD4',
-  token: '0x4B5A4ACDaBCb362780350Aca69Fc80EE4Acb1352',
-  timeLock: '0xe2b5beB808b4626ea6Ab383Ca461fe1548417691',
+  token: '0x873e907D3E7e3c5aB020afD37973624f7523165c',
+  timeLock: '0x3cAD09734AeAe05ab2562E1FE06Eb64Ec1577b39',
+  governor: '0x8cc4f78e35E98391bb3BE931EDAF36cCd8D737Fa'
 };
 
 // Contract instances factory
