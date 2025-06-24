@@ -5,11 +5,13 @@ import { RootState } from "@/store/store";
 import { useEffect, useState } from "react";
 import { useToken } from "@/hooks/useToken";
 import NeonButton from "@/components/ui/NeonButton";
+import ProposalModal from "@/components/ui/ProposalModal";
 
 export default function Dashboard() {
   const walletAddress = useSelector((state: RootState) => state.wallet.account);
   const [isMounted, setIsMounted] = useState(false);
   const { balance, isLoading: isTokenLoading, getBalance } = useToken();
+  const [isProposalModalOpen, setProposalModalOpen] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -51,12 +53,17 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
-          <NeonButton
-            onClick={() => {
-              /* open proposal modal */
-            }}>
+          <NeonButton onClick={() => setProposalModalOpen(true)}>
             Create Proposal
           </NeonButton>
+          <ProposalModal
+            open={isProposalModalOpen}
+            onClose={() => setProposalModalOpen(false)}
+            onSubmit={(data) => {
+              // TODO: Replace with contract interaction
+              console.log("Proposal submitted:", data);
+            }}
+          />
         </>
       ) : (
         <div className='text-center py-8'>

@@ -131,3 +131,17 @@ npx -y @upstash/context7-mcp@latest
 https://web3-dao-app.vercel.app/
 
 ```
+
+###Initial Distribution Strategy:
+
+Keep 40% for DAO treasury
+Distribute 30% to founding members
+Reserve 20% for future contributors
+Use 10% for incentives/rewards
+
+###Governance Participation:
+
+Require token delegation for voting
+Set minimum proposal thresholds
+Create discussion forums
+Regular community calls
