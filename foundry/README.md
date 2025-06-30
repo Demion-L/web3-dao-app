@@ -56,7 +56,9 @@ $ anvil
 2. From /foundry folder run next command to deploy all contracts
 
 ```shell
-$ forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --broadcast -vvvv
+# $ forge script script/Deploy.s.sol --rpc-url $LOCAL_RPC_URL --broadcast -vvvv
+
+$ forge script script/Deploy.s.sol --rpc-url local --broadcast -vvvv
 ```
 
 ### Deploy to Sepolia tesnet (dry)

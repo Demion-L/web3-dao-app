@@ -151,6 +151,48 @@ function _executeOperations(
 
 - Executes proposal operations after timelock delay
 
+## TokenDistributor & Distribution Setup
+
+### TokenDistributor
+
+**Location**: `contracts/distribution/TokenDistributor.sol`
+
+The TokenDistributor contract manages the allocation and vesting of tokens for different categories, such as founding members, core team, and public/community distribution. It supports batch creation of vesting schedules and direct token distributions.
+
+#### Key Features
+
+- Batch vesting schedule creation for multiple recipients
+- Support for different allocation categories (e.g., FOUNDING_MEMBERS, CORE_TEAM, PUBLIC_DISTRIBUTION)
+- Direct token distribution for community/public rounds
+- Designed to be managed by a DAO or multisig for secure distribution
+
+### SetupDistributor Script
+
+**Location**: `foundry/script/SetupDistributor.s.sol`
+
+This Foundry script provides helper functions to initialize vesting schedules and perform initial token distributions after deploying the TokenDistributor contract.
+
+#### Functions
+
+- `setupFoundingMembers()`: Sets up vesting for founding members (6 month cliff, 18 month vesting)
+- `setupCoreTeam()`: Sets up vesting for core team (3 month cliff, 24 month vesting)
+- `initialCommunityDistribution()`: Distributes tokens to community members for public distribution
+
+#### Usage
+
+1. Deploy the TokenDistributor contract and note its address.
+2. Set the `DISTRIBUTOR_ADDRESS` environment variable to the deployed address.
+3. Run the desired setup function using Foundry:
+
+```sh
+export DISTRIBUTOR_ADDRESS=0xYourDistributorAddress
+forge script foundry/script/SetupDistributor.s.sol --sig "setupFoundingMembers()" --rpc-url $SEPOLIA_RPC_URL --broadcast
+forge script foundry/script/SetupDistributor.s.sol --sig "setupCoreTeam()" --rpc-url $SEPOLIA_RPC_URL --broadcast
+forge script foundry/script/SetupDistributor.s.sol --sig "initialCommunityDistribution()" --rpc-url $SEPOLIA_RPC_URL --broadcast
+```
+
+These scripts allow you to flexibly initialize and manage your token distribution process after deployment.
+
 ## Deployment
 
 The contracts are deployed using the `Deploy.s.sol` script with the following parameters:
