@@ -235,13 +235,14 @@ contract TokenDistributor is Ownable, ReentrancyGuard {
         address beneficiary
     ) public view returns (uint256) {
         require(beneficiary != address(0), "Invalid beneficiary address");
-        require(
-            vestingSchedules[beneficiary].totalAllocation > 0,
-            "No vesting schedule for this address"
-        );
+        // Check for revoked first to ensure the correct error message.
         require(
             !vestingSchedules[beneficiary].revoked,
             "Vesting schedule revoked"
+        );
+        require(
+            vestingSchedules[beneficiary].totalAllocation > 0,
+            "No vesting schedule for this address"
         );
         uint256 vestedAmount = calculateVestedAmount(beneficiary);
         uint256 claimed = vestingSchedules[beneficiary].claimed;
@@ -311,7 +312,8 @@ contract TokenDistributor is Ownable, ReentrancyGuard {
         uint256 reward = 10 * 10 ** 18; // 10 MTK per vote
         // Limit to one reward per day per user
         require(
-            block.timestamp > lastVoteTime[voter] + 1 days,
+            lastVoteTime[voter] == 0 ||
+                block.timestamp >= lastVoteTime[voter] + 1 days,
             "Already rewarded today"
         );
         lastVoteTime[voter] = block.timestamp;
@@ -335,8 +337,26 @@ contract TokenDistributor is Ownable, ReentrancyGuard {
      * @param beneficiary Address of the beneficiary
      */
     function revokeVesting(address beneficiary) external onlyOwner {
-        require(!vestingSchedules[beneficiary].revoked, "Already revoked");
-        vestingSchedules[beneficiary].revoked = true;
+        VestingSchedule storage schedule = vestingSchedules[beneficiary];
+        require(
+            schedule.totalAllocation > 0,
+            "No vesting schedule for this address"
+        );
+        require(!schedule.revoked, "Vesting schedule already revoked");
+
+        uint256 vestedAmount = calculateVestedAmount(beneficiary);
+        uint256 unvested = schedule.totalAllocation - vestedAmount;
+
+        if (unvested > 0) {
+            uint256 fee = unvested / 1000; // 0.1% fee
+            uint256 amountToRefund = unvested - fee;
+            require(
+                token.transfer(owner(), amountToRefund),
+                "Refund transfer failed"
+            );
+        }
+
+        schedule.revoked = true;
         emit VestingRevoked(beneficiary);
     }
 

@@ -32,21 +32,17 @@ contract TokenDistributorTest is Test {
     }
 
     /**
-     * TODO: createVestingSchedule
-     * TODO: batchCreateVestingSchedules
-     * TODO: calculateVestedAmount
-     * TODO: getClaimableAmount
-     * TODO: claimVestedTokens
      * TODO: grantGovernanceReward
      * TODO: batchGrantGovernanceRewards
      * TODO: rewardVoting
      * TODO: rewardProposal
-     * TODO: revokeVesting
      * TODO: distributeTokens
-     * TODO: getVestingInfo
-     * TODO: getCategoryInfo
-     * TODO: emergencyWithdraw
+     * TODO: getCategoryInf
      */
+
+    /*//////////////////////////////////////////////////////////////
+                     CREATE VESTING SCHEDULE TESTS
+    //////////////////////////////////////////////////////////////*/
 
     function test_createVestingSchedule_WorksForOwner() public {
         uint256 allocation = 1000e18;
@@ -158,6 +154,10 @@ contract TokenDistributorTest is Test {
             12
         );
     }
+
+    /*//////////////////////////////////////////////////////////////
+                   BATCH CREATE VESTING SCHEDULES TESTS
+    //////////////////////////////////////////////////////////////*/
 
     function test_batchCreateVestingSchedules_WorksForOwner() public {
         uint256[] memory allocations = new uint256[](2);
@@ -295,6 +295,10 @@ contract TokenDistributorTest is Test {
         );
     }
 
+    /*//////////////////////////////////////////////////////////////
+                      CALCULATE VESTED AMOUNT TESTS
+    //////////////////////////////////////////////////////////////*/
+
     function test_calculateVestedAmount_NoScheduleOrRevoked() public {
         // No schedule: should return 0
         assertEq(distributor.calculateVestedAmount(beneficiary1), 0);
@@ -396,6 +400,10 @@ contract TokenDistributorTest is Test {
         vm.warp(start + vestingMonths * 30 days + 1);
         assertEq(distributor.calculateVestedAmount(beneficiary1), allocation);
     }
+
+    /*//////////////////////////////////////////////////////////////
+                       GET CLAIMABLE AMOUNT TESTS
+    //////////////////////////////////////////////////////////////*/
 
     function test_getClaimableAmount_RevertsIfNoSchedule() public {
         vm.expectRevert("No vesting schedule for this address");
@@ -547,5 +555,272 @@ contract TokenDistributorTest is Test {
         // The sum of the user's balance and remaining claimable should be the total allocation
         uint256 balance = myToken.balanceOf(beneficiary1);
         assertApproxEqAbs(balance + remainingClaimable, allocation, 1e14);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                           REVOKE VESTING TESTS
+    //////////////////////////////////////////////////////////////*/
+
+    function test_revokeVesting_WorksForOwner() public {
+        uint256 allocation = 1000e18;
+        TokenDistributor.AllocationCategory category = TokenDistributor
+            .AllocationCategory
+            .CORE_TEAM;
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), allocation);
+        distributor.createVestingSchedule(
+            beneficiary1,
+            allocation,
+            category,
+            1,
+            12
+        );
+        uint256 ownerBalanceBefore = myToken.balanceOf(owner);
+
+        // Revoke the vesting schedule
+        distributor.revokeVesting(beneficiary1);
+
+        // The contract takes a 0.1% fee on revocation (1/1000)
+        uint256 expectedRefund = allocation - (allocation / 1000);
+
+        // Check that the tokens were returned to the owner
+        uint256 ownerBalanceAfter = myToken.balanceOf(owner);
+        assertEq(
+            ownerBalanceAfter,
+            ownerBalanceBefore + expectedRefund,
+            "Owner should have received the unvested tokens"
+        );
+
+        // Check that the schedule is now inaccessible
+        vm.expectRevert("Vesting schedule revoked");
+        distributor.getClaimableAmount(beneficiary1);
+
+        vm.stopPrank();
+    }
+
+    function test_revokeVesting_RevertsIfNotOwner() public {
+        uint256 allocation = 1000e18;
+        TokenDistributor.AllocationCategory category = TokenDistributor
+            .AllocationCategory
+            .CORE_TEAM;
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), allocation);
+        distributor.createVestingSchedule(
+            beneficiary1,
+            allocation,
+            category,
+            1,
+            12
+        );
+        vm.stopPrank();
+
+        vm.prank(outsider);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Ownable.OwnableUnauthorizedAccount.selector,
+                outsider
+            )
+        );
+        distributor.revokeVesting(beneficiary1);
+    }
+
+    function test_revokeVesting_RevertsIfNoSchedule() public {
+        vm.prank(owner);
+        vm.expectRevert("No vesting schedule for this address");
+        distributor.revokeVesting(beneficiary1);
+    }
+
+    function test_revokeVesting_RevertsIfAlreadyRevoked() public {
+        uint256 allocation = 1000e18;
+        TokenDistributor.AllocationCategory category = TokenDistributor
+            .AllocationCategory
+            .CORE_TEAM;
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), allocation);
+        distributor.createVestingSchedule(
+            beneficiary1,
+            allocation,
+            category,
+            1,
+            12
+        );
+        distributor.revokeVesting(beneficiary1);
+
+        // Try to revoke again
+        vm.expectRevert("Vesting schedule already revoked");
+        distributor.revokeVesting(beneficiary1);
+        vm.stopPrank();
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                       EMERGENCY WITHDRAW TESTS
+    //////////////////////////////////////////////////////////////*/
+
+    function test_emergencyWithdraw_WorksForOwner() public {
+        uint256 fundAmount = 5000e18;
+        uint256 withdrawAmount = 1000e18;
+
+        // Fund the distributor contract
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), fundAmount);
+        uint256 ownerBalanceBefore = myToken.balanceOf(owner);
+
+        // Withdraw a portion of the funds
+        distributor.emergencyWithdraw(withdrawAmount);
+
+        // Check balances
+        uint256 ownerBalanceAfter = myToken.balanceOf(owner);
+        assertEq(
+            ownerBalanceAfter,
+            ownerBalanceBefore + withdrawAmount,
+            "Owner should have received the withdrawn tokens"
+        );
+        assertEq(
+            myToken.balanceOf(address(distributor)),
+            fundAmount - withdrawAmount,
+            "Distributor balance should be reduced"
+        );
+        vm.stopPrank();
+    }
+
+    function test_emergencyWithdraw_RevertsIfNotOwner() public {
+        vm.prank(outsider);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Ownable.OwnableUnauthorizedAccount.selector,
+                outsider
+            )
+        );
+        distributor.emergencyWithdraw(1000e18);
+    }
+
+    function test_emergencyWithdraw_RevertsOnInsufficientBalance() public {
+        uint256 fundAmount = 1000e18;
+        uint256 withdrawAmount = 2000e18; // More than the contract has
+
+        // Fund the distributor contract
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), fundAmount);
+
+        // Expect a revert due to insufficient balance for the transfer
+        // Note: The exact error depends on the ERC20 implementation.
+        // We assume a standard OpenZeppelin ERC20 revert.
+        vm.expectRevert();
+        distributor.emergencyWithdraw(withdrawAmount);
+        vm.stopPrank();
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                       GOVERNANCE REWARD TESTS
+    //////////////////////////////////////////////////////////////*/
+
+    function test_grantGovernanceReward_WorksForOwner() public {
+        uint256 rewardAmount = 500e18;
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), rewardAmount);
+
+        distributor.grantGovernanceReward(
+            beneficiary1,
+            rewardAmount,
+            "Test Reward"
+        );
+
+        assertEq(myToken.balanceOf(beneficiary1), rewardAmount);
+        assertEq(distributor.governanceRewards(beneficiary1), rewardAmount);
+        assertEq(
+            distributor.categoryAllocated(
+                TokenDistributor.AllocationCategory.COMMUNITY_INCENTIVES
+            ),
+            rewardAmount
+        );
+        vm.stopPrank();
+    }
+
+    function test_grantGovernanceReward_RevertsIfNotOwner() public {
+        vm.prank(outsider);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Ownable.OwnableUnauthorizedAccount.selector,
+                outsider
+            )
+        );
+        distributor.grantGovernanceReward(beneficiary1, 100e18, "Fail Reward");
+    }
+
+    function test_grantGovernanceReward_RevertsOnCategoryLimit() public {
+        uint256 limit = distributor.categoryLimits(
+            TokenDistributor.AllocationCategory.COMMUNITY_INCENTIVES
+        );
+        uint256 overLimit = limit + 1;
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), overLimit);
+        vm.expectRevert("Exceeds community incentives limit");
+        distributor.grantGovernanceReward(beneficiary1, overLimit, "Fail");
+        vm.stopPrank();
+    }
+
+    function test_batchGrantGovernanceRewards_Works() public {
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 100e18;
+        amounts[1] = 200e18;
+        address[] memory users = new address[](2);
+        users[0] = beneficiary1;
+        users[1] = beneficiary2;
+        uint256 total = amounts[0] + amounts[1];
+
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), total);
+        distributor.batchGrantGovernanceRewards(users, amounts, "Batch Reward");
+
+        assertEq(myToken.balanceOf(beneficiary1), amounts[0]);
+        assertEq(myToken.balanceOf(beneficiary2), amounts[1]);
+        vm.stopPrank();
+    }
+
+    function test_rewardVoting_WorksFirstTime() public {
+        uint256 reward = 10e18;
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), reward);
+        distributor.rewardVoting(beneficiary1);
+
+        assertEq(myToken.balanceOf(beneficiary1), reward);
+        assertGt(distributor.lastVoteTime(beneficiary1), 0);
+        vm.stopPrank();
+    }
+
+    function test_rewardVoting_RevertsOnSameDay() public {
+        uint256 reward = 10e18;
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), reward * 2);
+        distributor.rewardVoting(beneficiary1);
+
+        vm.expectRevert("Already rewarded today");
+        distributor.rewardVoting(beneficiary1);
+        vm.stopPrank();
+    }
+
+    function test_rewardVoting_WorksAfterOneDay() public {
+        uint256 reward = 10e18;
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), reward * 2);
+        distributor.rewardVoting(beneficiary1);
+
+        // Move time forward by more than 1 day
+        vm.warp(block.timestamp + 1 days + 1);
+
+        distributor.rewardVoting(beneficiary1);
+        assertEq(myToken.balanceOf(beneficiary1), reward * 2);
+        vm.stopPrank();
+    }
+
+    function test_rewardProposal_Works() public {
+        uint256 reward = 100e18;
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), reward);
+        distributor.rewardProposal(beneficiary1);
+
+        assertEq(myToken.balanceOf(beneficiary1), reward);
+        assertEq(distributor.proposalRewards(beneficiary1), reward);
+        vm.stopPrank();
     }
 }
