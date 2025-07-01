@@ -714,15 +714,15 @@ contract TokenDistributorTest is Test {
                        GOVERNANCE REWARD TESTS
     //////////////////////////////////////////////////////////////*/
 
-    function test_grantGovernanceReward_WorksForOwner() public {
-        uint256 rewardAmount = 500e18;
+    function test_grantGovernancereward_WorksForOwner() public {
+        uint256 rewardAmount = 1000e18;
         vm.startPrank(owner);
         myToken.transfer(address(distributor), rewardAmount);
 
         distributor.grantGovernanceReward(
             beneficiary1,
             rewardAmount,
-            "Test Reward"
+            "Test reward"
         );
 
         assertEq(myToken.balanceOf(beneficiary1), rewardAmount);
@@ -736,7 +736,7 @@ contract TokenDistributorTest is Test {
         vm.stopPrank();
     }
 
-    function test_grantGovernanceReward_RevertsIfNotOwner() public {
+    function test_grantGovernanceReward_RevertsNotOwner() public {
         vm.prank(outsider);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -744,7 +744,11 @@ contract TokenDistributorTest is Test {
                 outsider
             )
         );
-        distributor.grantGovernanceReward(beneficiary1, 100e18, "Fail Reward");
+        distributor.grantGovernanceReward(
+            beneficiary1,
+            100e18,
+            "Failed reward"
+        );
     }
 
     function test_grantGovernanceReward_RevertsOnCategoryLimit() public {
@@ -755,7 +759,11 @@ contract TokenDistributorTest is Test {
         vm.startPrank(owner);
         myToken.transfer(address(distributor), overLimit);
         vm.expectRevert("Exceeds community incentives limit");
-        distributor.grantGovernanceReward(beneficiary1, overLimit, "Fail");
+        distributor.grantGovernanceReward(
+            beneficiary1,
+            overLimit,
+            "Failed reward"
+        );
         vm.stopPrank();
     }
 
@@ -766,12 +774,15 @@ contract TokenDistributorTest is Test {
         address[] memory users = new address[](2);
         users[0] = beneficiary1;
         users[1] = beneficiary2;
-        uint256 total = amounts[0] + amounts[1];
+        uint256 totalAmount = amounts[0] + amounts[1];
 
         vm.startPrank(owner);
-        myToken.transfer(address(distributor), total);
-        distributor.batchGrantGovernanceRewards(users, amounts, "Batch Reward");
-
+        myToken.transfer(address(distributor), totalAmount);
+        distributor.batchGrantGovernanceRewards(
+            users,
+            amounts,
+            "Batch rewards"
+        );
         assertEq(myToken.balanceOf(beneficiary1), amounts[0]);
         assertEq(myToken.balanceOf(beneficiary2), amounts[1]);
         vm.stopPrank();
@@ -784,7 +795,8 @@ contract TokenDistributorTest is Test {
         distributor.rewardVoting(beneficiary1);
 
         assertEq(myToken.balanceOf(beneficiary1), reward);
-        assertGt(distributor.lastVoteTime(beneficiary1), 0);
+        assertEq(distributor.lastVoteTime(beneficiary1), block.timestamp);
+
         vm.stopPrank();
     }
 
