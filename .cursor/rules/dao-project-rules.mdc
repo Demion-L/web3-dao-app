@@ -31,3 +31,5 @@ This is my dependencies -
 }
 
 Make sure in your answers you are using applicable cose snippets accordingly to the versions of the libraries which I use!
+
+When you need to create type or interface always place it in speccial folder /types and all names for interface should start with capital "I", like - "IProposal" or "IWallet"

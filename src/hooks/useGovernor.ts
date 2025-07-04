@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { GOVERNOR_ABI, CONTRACT_ADDRESSES, getContract } from "@/config/contracts";
-import { ethers } from "ethers";
+import { getEthersSigner } from "@/utils/getEthersSigner";
 
 export function useGovernor() {
   const [loading, setLoading] = useState(false);
@@ -10,9 +10,7 @@ export function useGovernor() {
     setLoading(true);
     setError(null);
     try {
-      if (!window.ethereum) throw new Error("No crypto wallet found");
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      const signer = await getEthersSigner();
       const governor = getContract(CONTRACT_ADDRESSES.governor, GOVERNOR_ABI, signer);
       const targets: string[] = [];
       const values: bigint[] = [];

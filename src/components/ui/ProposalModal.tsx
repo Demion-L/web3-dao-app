@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import NeonButton from "@/components/ui/NeonButton";
-import { ProposalModalProps, ProposalType } from "@/types/types";
+import {
+  ProposalModalProps,
+  ProposalType,
+  ProposalFormData,
+} from "@/types/IProposal";
 
 export default function ProposalModal({
   open,
@@ -10,15 +14,30 @@ export default function ProposalModal({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [proposalType, setProposalType] = useState<ProposalType>("description");
+  const [target, setTarget] = useState("");
+  const [functionName, setFunctionName] = useState("");
+  const [functionArgs, setFunctionArgs] = useState("");
+  const [ethValue, setEthValue] = useState("");
 
   if (!open) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ title, description, proposalType });
+    onSubmit({
+      title,
+      description,
+      proposalType,
+      ...(proposalType === "onchain"
+        ? { target, functionName, functionArgs, ethValue }
+        : {}),
+    } as ProposalFormData);
     setTitle("");
     setDescription("");
     setProposalType("description");
+    setTarget("");
+    setFunctionName("");
+    setFunctionArgs("");
+    setEthValue("");
     onClose();
   };
 
@@ -59,6 +78,40 @@ export default function ProposalModal({
               On-chain Action
             </label>
           </div>
+          {proposalType === "onchain" && (
+            <>
+              <input
+                type='text'
+                placeholder='Target Contract Address'
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                required
+                className='px-4 py-2 rounded-lg border border-theme bg-white/10 dark:bg-[#2d2d2d]/40 text-primary focus:outline-none focus:ring-2 focus:ring-accent-color neon-glow'
+              />
+              <input
+                type='text'
+                placeholder='Function Name (e.g. transfer)'
+                value={functionName}
+                onChange={(e) => setFunctionName(e.target.value)}
+                required
+                className='px-4 py-2 rounded-lg border border-theme bg-white/10 dark:bg-[#2d2d2d]/40 text-primary focus:outline-none focus:ring-2 focus:ring-accent-color neon-glow'
+              />
+              <input
+                type='text'
+                placeholder='Function Arguments (comma separated)'
+                value={functionArgs}
+                onChange={(e) => setFunctionArgs(e.target.value)}
+                className='px-4 py-2 rounded-lg border border-theme bg-white/10 dark:bg-[#2d2d2d]/40 text-primary focus:outline-none focus:ring-2 focus:ring-accent-color neon-glow'
+              />
+              <input
+                type='text'
+                placeholder='ETH Value (optional, in ETH)'
+                value={ethValue}
+                onChange={(e) => setEthValue(e.target.value)}
+                className='px-4 py-2 rounded-lg border border-theme bg-white/10 dark:bg-[#2d2d2d]/40 text-primary focus:outline-none focus:ring-2 focus:ring-accent-color neon-glow'
+              />
+            </>
+          )}
           <input
             type='text'
             placeholder='Proposal Title'

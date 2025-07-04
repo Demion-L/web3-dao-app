@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Provider, Signer } from 'ethers';
 import { getEthBalance } from '../../utils/ethereum';
-import { WalletState } from '@/types/Iwallet';
+import { WalletState } from '@/types/IWallet';
 
 const initialState: WalletState = {
   account: null,

@@ -7,6 +7,8 @@ import { useToken } from "@/hooks/useToken";
 import NeonButton from "@/components/ui/NeonButton";
 import ProposalModal from "@/components/ui/ProposalModal";
 import { useGovernor } from "@/hooks/useGovernor";
+import { ProposalFormData } from "@/types/IProposal";
+import { createOnchainProposal } from "@/utils/createOnchainProposal";
 
 export default function Dashboard() {
   const walletAddress = useSelector((state: RootState) => state.wallet.account);
@@ -61,14 +63,30 @@ export default function Dashboard() {
           <ProposalModal
             open={isProposalModalOpen}
             onClose={() => setProposalModalOpen(false)}
-            onSubmit={async (data) => {
+            onSubmit={async (data: ProposalFormData) => {
               try {
-                const tx = await createProposal(
-                  data.description || "No description"
-                );
-                console.log("Proposal transaction sent:", tx.hash);
-                const receipt = await tx.wait();
-                console.log("Proposal created! Receipt:", receipt);
+                if (data.proposalType === "description") {
+                  const tx = await createProposal(
+                    data.description || "No description"
+                  );
+                  console.log("Proposal transaction sent:", tx.hash);
+                  const receipt = await tx.wait();
+                  console.log("Proposal created! Receipt:", receipt);
+                } else if (data.proposalType === "onchain") {
+                  const { target, ethValue, functionArgs, functionName } =
+                    data as Extract<
+                      ProposalFormData,
+                      { proposalType: "onchain" }
+                    >;
+                  const receipt = await createOnchainProposal({
+                    target,
+                    ethValue,
+                    functionArgs,
+                    functionName,
+                    description: data.description || "On-chain action proposal",
+                  });
+                  console.log("On-chain proposal created! Receipt:", receipt);
+                }
               } catch (err) {
                 console.error("Proposal creation failed:", err);
               }

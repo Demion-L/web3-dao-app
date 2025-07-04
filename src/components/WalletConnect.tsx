@@ -1,7 +1,7 @@
 "use client";
 
 import { useWallet } from "@/hooks/useWallet";
-import { WalletConnectProps } from "@/types/Iwallet";
+import { WalletConnectProps } from "@/types/IWallet";
 import { useEffect, useState } from "react";
 import { formatAddress } from "@/utils/format";
 import NeonButton from "@/components/ui/NeonButton";
