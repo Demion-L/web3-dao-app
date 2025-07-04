@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import NeonButton from "@/components/ui/NeonButton";
-import { ProposalModalProps } from "@/types/types";
+import { ProposalModalProps, ProposalType } from "@/types/types";
 
 export default function ProposalModal({
   open,
@@ -9,14 +9,16 @@ export default function ProposalModal({
 }: ProposalModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [proposalType, setProposalType] = useState<ProposalType>("description");
 
   if (!open) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ title, description });
+    onSubmit({ title, description, proposalType });
     setTitle("");
     setDescription("");
+    setProposalType("description");
     onClose();
   };
 
@@ -24,7 +26,7 @@ export default function ProposalModal({
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm'>
       <div className='card relative w-full max-w-md p-8 rounded-xl shadow-lg border border-theme glass-card animate-fade-in'>
         <button
-          className='absolute top-3 right-3 text-xl text-secondary hover:text-primary transition-colors'
+          className='absolute top-3 right-3 text-3xl text-secondary hover:text-primary transition-colors'
           onClick={onClose}
           aria-label='Close modal'>
           &times;
@@ -35,6 +37,28 @@ export default function ProposalModal({
         <form
           onSubmit={handleSubmit}
           className='flex flex-col gap-4'>
+          <div className='flex gap-4 items-center justify-center'>
+            <label className='flex items-center gap-2'>
+              <input
+                type='radio'
+                name='proposalType'
+                value='description'
+                checked={proposalType === "description"}
+                onChange={() => setProposalType("description")}
+              />
+              General Question
+            </label>
+            <label className='flex items-center gap-2'>
+              <input
+                type='radio'
+                name='proposalType'
+                value='onchain'
+                checked={proposalType === "onchain"}
+                onChange={() => setProposalType("onchain")}
+              />
+              On-chain Action
+            </label>
+          </div>
           <input
             type='text'
             placeholder='Proposal Title'

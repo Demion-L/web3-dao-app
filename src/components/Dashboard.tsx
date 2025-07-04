@@ -6,12 +6,14 @@ import { useEffect, useState } from "react";
 import { useToken } from "@/hooks/useToken";
 import NeonButton from "@/components/ui/NeonButton";
 import ProposalModal from "@/components/ui/ProposalModal";
+import { useGovernor } from "@/hooks/useGovernor";
 
 export default function Dashboard() {
   const walletAddress = useSelector((state: RootState) => state.wallet.account);
   const [isMounted, setIsMounted] = useState(false);
   const { balance, isLoading: isTokenLoading, getBalance } = useToken();
   const [isProposalModalOpen, setProposalModalOpen] = useState(false);
+  const { createProposal } = useGovernor();
 
   useEffect(() => {
     setIsMounted(true);
@@ -59,9 +61,17 @@ export default function Dashboard() {
           <ProposalModal
             open={isProposalModalOpen}
             onClose={() => setProposalModalOpen(false)}
-            onSubmit={(data) => {
-              // TODO: Replace with contract interaction
-              console.log("Proposal submitted:", data);
+            onSubmit={async (data) => {
+              try {
+                const tx = await createProposal(
+                  data.description || "No description"
+                );
+                console.log("Proposal transaction sent:", tx.hash);
+                const receipt = await tx.wait();
+                console.log("Proposal created! Receipt:", receipt);
+              } catch (err) {
+                console.error("Proposal creation failed:", err);
+              }
             }}
           />
         </>

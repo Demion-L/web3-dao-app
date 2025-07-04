@@ -1,4 +1,3 @@
-
 export interface Proposal {
   id: string;
   title: string;
@@ -7,11 +6,12 @@ export interface Proposal {
   updatedAt: Date;
 }
 
+export type ProposalType = 'description' | 'onchain';
 
 export interface ProposalModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: { title: string; description: string }) => void;
+  onSubmit: (data: { title: string; description: string; proposalType: ProposalType }) => void;
 }
 
-export type ProposalFormData = { title: string; description: string };
+export type ProposalFormData = { title: string; description: string; proposalType: ProposalType };

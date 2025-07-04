@@ -1,0 +1,33 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+In this project I'm using Solidity ^0.8.24, Foundry for testing, Sepolia as a testnet. My contracts separately placed in a /contracts folder, tests, scripts e.g I keep in /foundry folder on same level with /contracts folder. My front-end part I keep in /src folder on same level with /contracts and /foundry. For front-end I'm using Next.js with Redux.
+
+This is my dependencies - 
+
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.7.0",
+    "autoprefixer": "^10.4.21",
+    "ethers": "^6.13.7",
+    "next": "15.3.1",
+    "next-themes": "^0.4.6",
+    "postcss": "^8.5.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-redux": "^9.2.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.1",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
+
+Make sure in your answers you are using applicable cose snippets accordingly to the versions of the libraries which I use!
