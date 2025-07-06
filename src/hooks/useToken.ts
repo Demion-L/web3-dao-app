@@ -6,6 +6,7 @@ import { getContract, TOKEN_ABI, CONTRACT_ADDRESSES } from '@/config/contracts';
 export const useToken = () => {
   const { signer } = useWallet();
   const [ balance, setBalance] = useState<string>('0');
+  const [ votingPower, setVotingPower] = useState<string>('0');
   const [ isLoading, setIsLoading ] = useState<boolean>(false);
   const decimalsRef = useRef<number | null>(null);
 
@@ -28,6 +29,21 @@ export const useToken = () => {
     }
   }, [tokenContract]);
 
+  const getVotingPower = useCallback(async () => {
+    if (!tokenContract || !signer) return;
+
+    try {
+      const address = await signer.getAddress();
+      const votes = await tokenContract.getVotes(address, "latest");
+      const decimals = await getDecimals();
+      const formatted = ethers.formatUnits(votes, decimals);
+      setVotingPower(formatted);
+    } catch (error) {
+      console.error('Error fetching voting power:', error);
+      setVotingPower('0');
+    }
+  }, [tokenContract, signer, getDecimals]);
+
   const getBalance = useCallback(async () => {
     if (!tokenContract || !signer) return;
 
@@ -38,12 +54,14 @@ export const useToken = () => {
       const decimals = await getDecimals();
       const formatted = ethers.formatUnits(balance, decimals);
       setBalance(formatted);
+      // Also get voting power
+      await getVotingPower();
     } catch (error) {
       console.error('Error fetching token balance:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [tokenContract, signer, getDecimals]);
+  }, [tokenContract, signer, getDecimals, getVotingPower]);
 
   const transfer = useCallback(async(to: string, amount: string) => {
     if (!tokenContract || !signer) return;
@@ -64,8 +82,10 @@ export const useToken = () => {
 
   return {
     balance,
+    votingPower,
     isLoading,
     getBalance,
+    getVotingPower,
     transfer,
   };
 };

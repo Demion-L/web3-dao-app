@@ -9,17 +9,110 @@ import ProposalModal from "@/components/ui/ProposalModal";
 import { useGovernor } from "@/hooks/useGovernor";
 import { ProposalFormData } from "@/types/IProposal";
 import { createOnchainProposal } from "@/utils/createOnchainProposal";
+import { useDispatch } from "react-redux";
+import {
+  setAccount,
+  setProvider,
+  setSigner,
+} from "@/store/features/walletSlice";
+import { ethers } from "ethers";
+
+console.log("Dashboard component file loaded");
 
 export default function Dashboard() {
+  console.log("Dashboard component rendered");
   const walletAddress = useSelector((state: RootState) => state.wallet.account);
+  const dispatch = useDispatch();
   const [isMounted, setIsMounted] = useState(false);
-  const { balance, isLoading: isTokenLoading, getBalance } = useToken();
+  const {
+    balance,
+    isLoading: isTokenLoading,
+    getBalance,
+    votingPower,
+  } = useToken();
   const [isProposalModalOpen, setProposalModalOpen] = useState(false);
   const { createProposal } = useGovernor();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Auto-reconnect on page load
+  useEffect(() => {
+    const checkConnection = async () => {
+      console.log("DEBUG: Dashboard checking for existing connection...");
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({
+            method: "eth_accounts",
+          });
+          console.log("DEBUG: Found accounts:", accounts);
+          if (accounts.length > 0) {
+            console.log("DEBUG: Auto-connecting to:", accounts[0]);
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            dispatch(setProvider(provider));
+            dispatch(setSigner(signer));
+            dispatch(setAccount(accounts[0]));
+            console.log("DEBUG: Auto-connection successful");
+          } else {
+            console.log("DEBUG: No accounts found");
+          }
+        } catch (error) {
+          console.error("Auto-connection failed:", error);
+        }
+      } else {
+        console.log("DEBUG: No window.ethereum found");
+      }
+    };
+
+    checkConnection();
+  }, [dispatch]);
+
+  useEffect(() => {
+    console.log("DEBUG: useEffect triggered, walletAddress:", walletAddress);
+
+    const checkVotingPower = async () => {
+      console.log("DEBUG: checkVotingPower function called");
+      if (walletAddress) {
+        console.log("DEBUG: walletAddress exists, proceeding...");
+        try {
+          const { getContract, TOKEN_ABI, CONTRACT_ADDRESSES } = await import(
+            "@/config/contracts"
+          );
+          if (!window.ethereum) throw new Error("No crypto wallet found");
+          const provider = new (await import("ethers")).ethers.BrowserProvider(
+            window.ethereum
+          );
+          const token = getContract(
+            CONTRACT_ADDRESSES.token,
+            TOKEN_ABI,
+            provider
+          );
+
+          console.log("=== DEBUG INFO ===");
+          console.log("Token contract address:", CONTRACT_ADDRESSES.token);
+          console.log("Your wallet address:", walletAddress);
+
+          const balance = await token.balanceOf(walletAddress);
+          console.log("Token balance (raw):", balance.toString());
+
+          const delegatee = await token.delegates(walletAddress);
+          console.log("Delegatee:", delegatee);
+
+          const votes = await token.getVotes(walletAddress, "latest");
+          console.log("Voting power (raw):", votes.toString());
+          console.log("=== END DEBUG ===");
+        } catch (error) {
+          console.error("Debug error:", error);
+        }
+      } else {
+        console.log("DEBUG: No walletAddress");
+      }
+    };
+
+    checkVotingPower();
+  }, [walletAddress]);
 
   useEffect(() => {
     if (walletAddress) {
@@ -56,6 +149,13 @@ export default function Dashboard() {
                 {isTokenLoading ? "Loading..." : `${balance} TOKENS`}
               </span>
             </div>
+            <div className='flex items-center justify-between'>
+              <span className='text-secondary'>Voting Power:</span>
+              {/* Todo: add neon-green color */}
+              <span className='font-mono text-primary text-neon-green'>
+                {isTokenLoading ? "Loading..." : `${votingPower} VOTES`}
+              </span>
+            </div>
           </div>
           <NeonButton onClick={() => setProposalModalOpen(true)}>
             Create Proposal
@@ -65,28 +165,14 @@ export default function Dashboard() {
             onClose={() => setProposalModalOpen(false)}
             onSubmit={async (data: ProposalFormData) => {
               try {
-                if (data.proposalType === "description") {
-                  const tx = await createProposal(
-                    data.description || "No description"
-                  );
-                  console.log("Proposal transaction sent:", tx.hash);
-                  const receipt = await tx.wait();
-                  console.log("Proposal created! Receipt:", receipt);
-                } else if (data.proposalType === "onchain") {
-                  const { target, ethValue, functionArgs, functionName } =
-                    data as Extract<
-                      ProposalFormData,
-                      { proposalType: "onchain" }
-                    >;
-                  const receipt = await createOnchainProposal({
-                    target,
-                    ethValue,
-                    functionArgs,
-                    functionName,
-                    description: data.description || "On-chain action proposal",
-                  });
-                  console.log("On-chain proposal created! Receipt:", receipt);
-                }
+                const receipt = await (
+                  await import("@/utils/handleProposalSubmit")
+                ).handleProposalSubmit(
+                  data,
+                  createProposal,
+                  createOnchainProposal
+                );
+                console.log("Proposal created! Receipt:", receipt);
               } catch (err) {
                 console.error("Proposal creation failed:", err);
               }

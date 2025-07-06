@@ -15,6 +15,11 @@ export function useGovernor() {
       const targets: string[] = [];
       const values: bigint[] = [];
       const calldatas: string[] = [];
+       console.log("propose() call data:");
+  console.log("targets:", targets);
+  console.log("values:", values);
+  console.log("calldatas:", calldatas);
+  console.log("description:", description);
       const tx = await governor.propose(targets, values, calldatas, description);
       setLoading(false);
       return tx;
