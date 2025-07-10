@@ -17,8 +17,6 @@ declare global {
 
 export interface WalletState {
   account: string | null;
-  provider: Provider | null;
-  signer: Signer | null;
   isConnected: boolean;
   balance: string | null;
 }
@@ -27,4 +25,15 @@ export interface WalletConnectProps {
   className?: string;
   onConnect?: (address: string) => void;
   onDisconnect?: () => void;
+}
+
+
+export interface IWalletContext {
+  account: string | null;
+  provider: ethers.BrowserProvider | null;
+  signer: ethers.Signer | null;
+  connectWallet: () => Promise<void>;
+  disconnectWallet: () => void;
+  isConnecting: boolean;
+  error: string | null;
 }

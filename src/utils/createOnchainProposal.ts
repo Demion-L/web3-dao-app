@@ -1,6 +1,6 @@
 import { IOnchainProposalInput } from "@/types/IProposal";
 import { ethers } from "ethers";
-import { getEthersSigner } from "@/utils/getEthersSigner";
+import { getWalletInfo } from "@/utils/getWalletInfo";
 
 export async function createOnchainProposal({
   target,
@@ -10,7 +10,7 @@ export async function createOnchainProposal({
   description,
 }: IOnchainProposalInput) {
   const { getContract, TOKEN_ABI, GOVERNOR_ABI, CONTRACT_ADDRESSES } = await import("@/config/contracts");
-  const signer = await getEthersSigner();
+  const signer = await getWalletInfo();
   // Prepare value
   const value = ethValue ? ethers.parseEther(ethValue) : 0n;
   // Prepare calldata

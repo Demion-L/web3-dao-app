@@ -14,6 +14,7 @@ export interface ProposalModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: ProposalFormData) => void;
+  isSubmitting?: boolean;
 }
 
 export interface IOnchainProposalInput {

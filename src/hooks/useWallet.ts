@@ -1,50 +1,32 @@
-import { useState } from 'react';
-import { ethers } from 'ethers';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
-import { setAccount, setProvider, setSigner } from '@/store/features/walletSlice';
+import { useWalletContext } from "@/context/WalletContext";
 
 export const useWallet = () => {
-  const dispatch = useDispatch();
-  const { account, provider, signer } = useSelector((state: RootState) => state.wallet);
-  const [isConnecting, setIsConnecting] = useState(false);
 
-  const connectWallet = async () => {
-    if (typeof window.ethereum === 'undefined') {
-      alert('Please install MetaMask to use this application');
-      return;
-    }
+  const {
+    account,
+    provider,
+    signer,
+    isConnecting,
+    error,
+    connectWallet,
+    disconnectWallet,
+  } = useWalletContext();
 
+  // Checks if wallet is still connected and updates context state
+  const checkConnection = async () => {
+    if (!window.ethereum) return false;
     try {
-      setIsConnecting(true);
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const address = await signer.getAddress();
-
-      dispatch(setProvider(provider));
-      dispatch(setSigner(signer));
-      dispatch(setAccount(address));
-
-      // Listen for account changes
-      window.ethereum.on('accountsChanged', (accounts: string | string[]) => {
-        dispatch(setAccount(Array.isArray(accounts) ? accounts[0] : accounts));
-      });
-
-      // Listen for chain changes
-      window.ethereum.on('chainChanged', () => {
-        window.location.reload();
-      });
-    } catch (error) {
-      console.error('Error connecting wallet:', error);
-    } finally {
-      setIsConnecting(false);
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (accounts.length > 0) {
+        // Reconnect provider/signer/account in context
+        await connectWallet();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error checking connection:', err);
+      return false;
     }
-  };
-
-  const disconnectWallet = () => {
-    dispatch(setAccount(null));
-    dispatch(setProvider(null));
-    dispatch(setSigner(null));
   };
 
   return {
@@ -52,7 +34,9 @@ export const useWallet = () => {
     provider,
     signer,
     isConnecting,
+    error,
     connectWallet,
     disconnectWallet,
+    checkConnection,
   };
 }; 

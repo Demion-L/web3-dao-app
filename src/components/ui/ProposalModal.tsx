@@ -10,6 +10,7 @@ export default function ProposalModal({
   open,
   onClose,
   onSubmit,
+  isSubmitting = false,
 }: ProposalModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -130,8 +131,9 @@ export default function ProposalModal({
           />
           <NeonButton
             type='submit'
-            className='mt-2 w-full'>
-            Submit Proposal
+            className='mt-2 w-full'
+            disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit Proposal"}
           </NeonButton>
         </form>
       </div>

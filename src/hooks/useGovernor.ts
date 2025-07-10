@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { GOVERNOR_ABI, CONTRACT_ADDRESSES, getContract } from "@/config/contracts";
-import { getEthersSigner } from "@/utils/getEthersSigner";
+import { getWalletInfo } from "@/utils/getWalletInfo";
 
 export function useGovernor() {
   const [loading, setLoading] = useState(false);
@@ -10,7 +10,7 @@ export function useGovernor() {
     setLoading(true);
     setError(null);
     try {
-      const signer = await getEthersSigner();
+      const { signer } = await getWalletInfo();
       const governor = getContract(CONTRACT_ADDRESSES.governor, GOVERNOR_ABI, signer);
       const targets: string[] = [];
       const values: bigint[] = [];
