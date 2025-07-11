@@ -102,6 +102,26 @@ export const useToken = () => {
         }
     }, [account, provider, getTokenData]);
 
+    // Add refreshVotingPower function
+    const refreshVotingPower = useCallback(async () => {
+        if (!account || !provider) return;
+        try {
+            const {
+                getContract, 
+                TOKEN_ABI, 
+                CONTRACT_ADDRESSES
+            } = await import('@/config/contracts');
+            const token = getContract(
+                CONTRACT_ADDRESSES.token, 
+                TOKEN_ABI, provider
+            );
+            const votes = await token.getVotes(account);
+            setVotingPower(ethers.formatUnits(votes, 18));
+        } catch (err) {
+            console.error('Error refreshing voting power:', err);
+        }
+    }, [account, provider]);
+
 const delegate = useCallback( async (to: string) => {
     if (!account || ! provider) return;
 
@@ -142,13 +162,14 @@ const delegate = useCallback( async (to: string) => {
         }
 
         await pollBlocks();
+        await refreshVotingPower();
     } catch (err: unknown) {
         console.error(`Delegation failed: ${err}`);
         setError(err instanceof Error ? err.message : String(err));
     } finally {
         setIsLoading(false);
     }
-},[account, provider, getTokenData]);
+},[account, provider, getTokenData, refreshVotingPower]);
 
 
 // Self-delegate function
@@ -173,7 +194,7 @@ return {
     getTokenData,
     delegate,
     delegateToSelf,
-    refreshTokenData
-
+    refreshTokenData,
+    refreshVotingPower
 }
 }

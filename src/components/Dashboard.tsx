@@ -35,6 +35,7 @@ export default function Dashboard() {
     delegatee,
     delegateToSelf,
     getTokenData: refreshTokenData,
+    refreshVotingPower,
   } = useToken();
 
   const [isProposalModalOpen, setProposalModalOpen] = useState(false);
@@ -271,6 +272,12 @@ export default function Dashboard() {
               <span className='font-mono text-primary text-neon-green'>
                 {isTokenLoading ? "Loading..." : `${votingPower} VOTES`}
               </span>
+              <NeonButton
+                onClick={refreshVotingPower}
+                className='ml-2 px-2 py-1 text-xs'
+                disabled={isTokenLoading}>
+                Refresh Voting Power
+              </NeonButton>
             </div>
             <div className='flex items-center justify-between'>
               <span className='text-secondary'>Delegated To:</span>

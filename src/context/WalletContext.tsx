@@ -28,6 +28,18 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "message" in err &&
+        typeof (err as { message: unknown }).message === "string" &&
+        ((err as { message: string }).message.includes("port closed") ||
+          (err as { message: string }).message.includes("runtime_lastError"))
+      ) {
+        console.warn("Wallet extension communication issue. Please try again.");
+        setTimeout(() => connectWallet(), 1000);
+      }
+      console.error("Error connecting wallet:", err);
     } finally {
       setIsConnecting(false);
     }

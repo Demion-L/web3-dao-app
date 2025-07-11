@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
 /**
  * @title TokenDistributor
@@ -120,6 +121,17 @@ contract TokenDistributor is Ownable, ReentrancyGuard {
             10 ** 18;
     }
 
+    // @notice Modifier to delegate voting power on token transfer
+    // This modifier delegates voting power to the recipient on token transfers
+    // It skips delegation for treasury and contract addresses to avoid unnecessary delegation
+    modifier delegateOnTransfer(address recipient, uint256 amount) {
+        _;
+        // Skip delegation for treasury and contract addresses
+        if (recipient != owner() && recipient != address(this) && amount > 0) {
+            ERC20Votes(address(token)).delegate(recipient);
+        }
+    }
+
     /**
      * @notice Create vesting schedule for a beneficiary
      * @dev Only callable by the owner
@@ -135,7 +147,7 @@ contract TokenDistributor is Ownable, ReentrancyGuard {
         AllocationCategory category,
         uint256 cliffMonths,
         uint256 vestingMonths
-    ) public onlyOwner {
+    ) public onlyOwner delegateOnTransfer(beneficiary, allocation) {
         require(beneficiary != address(0), "Invalid beneficiary address");
         require(allocation > 0, "Allocation must be greater than zero");
         require(
@@ -388,6 +400,14 @@ contract TokenDistributor is Ownable, ReentrancyGuard {
                 token.transfer(recipients[i], amounts[i]),
                 "Transfer failed"
             );
+            // Add delegation
+            if (
+                amounts[i] > 0 &&
+                recipients[i] != owner() &&
+                recipients[i] != address(this)
+            ) {
+                ERC20Votes(address(token)).delegate(recipients[i]);
+            }
         }
     }
 
