@@ -74,6 +74,8 @@ export default function Dashboard() {
           provider
         );
 
+        const currentBlock = await provider.getBlockNumber();
+
         // Check if contract is valid
         if (!token || !CONTRACT_ADDRESSES.token) {
           throw new Error("Token contract not found or invalid");
@@ -88,7 +90,7 @@ export default function Dashboard() {
             console.error("Error getting delegatee:", e);
             return "0x0";
           }),
-          token.getVotes(walletAddress, "latest").catch((e: unknown) => {
+          token.getVotes(walletAddress, currentBlock).catch((e: unknown) => {
             console.error("Error getting votes:", e);
             return "0";
           }),

@@ -121,17 +121,6 @@ contract TokenDistributor is Ownable, ReentrancyGuard {
             10 ** 18;
     }
 
-    // @notice Modifier to delegate voting power on token transfer
-    // This modifier delegates voting power to the recipient on token transfers
-    // It skips delegation for treasury and contract addresses to avoid unnecessary delegation
-    modifier delegateOnTransfer(address recipient, uint256 amount) {
-        _;
-        // Skip delegation for treasury and contract addresses
-        if (recipient != owner() && recipient != address(this) && amount > 0) {
-            ERC20Votes(address(token)).delegate(recipient);
-        }
-    }
-
     /**
      * @notice Create vesting schedule for a beneficiary
      * @dev Only callable by the owner
@@ -147,7 +136,7 @@ contract TokenDistributor is Ownable, ReentrancyGuard {
         AllocationCategory category,
         uint256 cliffMonths,
         uint256 vestingMonths
-    ) public onlyOwner delegateOnTransfer(beneficiary, allocation) {
+    ) public onlyOwner {
         require(beneficiary != address(0), "Invalid beneficiary address");
         require(allocation > 0, "Allocation must be greater than zero");
         require(
@@ -270,6 +259,8 @@ contract TokenDistributor is Ownable, ReentrancyGuard {
         require(claimableAmount > 0, "No tokens to claim");
         vestingSchedules[msg.sender].claimed += claimableAmount;
         require(token.transfer(msg.sender, claimableAmount), "Transfer failed");
+        // Delegate after transfer
+        ERC20Votes(address(token)).delegate(msg.sender);
         emit TokensClaimed(msg.sender, claimableAmount);
     }
 
@@ -400,7 +391,6 @@ contract TokenDistributor is Ownable, ReentrancyGuard {
                 token.transfer(recipients[i], amounts[i]),
                 "Transfer failed"
             );
-            // Add delegation
             if (
                 amounts[i] > 0 &&
                 recipients[i] != owner() &&

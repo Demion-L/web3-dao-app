@@ -835,4 +835,61 @@ contract TokenDistributorTest is Test {
         assertEq(distributor.proposalRewards(beneficiary1), reward);
         vm.stopPrank();
     }
+
+    // Test: Delegation after vesting schedule creation
+    function test_delegationAfterVestingSchedule() public {
+        uint256 allocation = 1000e18;
+        TokenDistributor.AllocationCategory category = TokenDistributor
+            .AllocationCategory
+            .CORE_TEAM;
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), allocation);
+        distributor.createVestingSchedule(
+            beneficiary1,
+            allocation,
+            category,
+            1,
+            12
+        );
+        vm.stopPrank();
+        // Check that beneficiary1 is their own delegate
+        assertEq(
+            myToken.delegates(beneficiary1),
+            beneficiary1,
+            "Beneficiary should be self-delegated after vesting schedule"
+        );
+    }
+
+    // Test: Delegation after distributeTokens
+    function test_delegationAfterDistributeTokens() public {
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 1000e18;
+        amounts[1] = 2000e18;
+        address[] memory recipients = new address[](2);
+        recipients[0] = beneficiary1;
+        recipients[1] = beneficiary2;
+        TokenDistributor.AllocationCategory category = TokenDistributor
+            .AllocationCategory
+            .COMMUNITY_INCENTIVES;
+        uint256 total = amounts[0] + amounts[1];
+
+        // Fund the distributor with enough tokens
+        vm.startPrank(owner);
+        myToken.transfer(address(distributor), total);
+        distributor.distributeTokens(recipients, amounts, category);
+        vm.stopPrank();
+
+        // Check that both recipients are self-delegated
+        assertEq(
+            myToken.delegates(beneficiary1),
+            beneficiary1,
+            "Beneficiary1 should be self-delegated after distribution"
+        );
+
+        assertEq(
+            myToken.delegates(beneficiary2),
+            beneficiary2,
+            "Beneficiary2 should be self-delegated after distribution"
+        );
+    }
 }
