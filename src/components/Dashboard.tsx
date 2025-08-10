@@ -8,6 +8,7 @@ import { useGovernor } from "@/hooks/useGovernor";
 import { ProposalFormData } from "@/types/IProposal";
 import { createOnchainProposal } from "@/utils/createOnchainProposal";
 import { useWallet } from "@/hooks/useWallet";
+import { getCurrentblockNumberAndVotingPower } from "@/utils/tokenHelpers";
 
 console.log("DASHBOARD RENDERED");
 export interface IDebugInfo {
@@ -74,14 +75,20 @@ export default function Dashboard() {
           provider
         );
 
-        const currentBlock = await provider.getBlockNumber();
+        // Use utility for current block and voting power
+        const { blockNumber, votingPower } =
+          await getCurrentblockNumberAndVotingPower(
+            token,
+            walletAddress,
+            provider
+          );
 
         // Check if contract is valid
         if (!token || !CONTRACT_ADDRESSES.token) {
           throw new Error("Token contract not found or invalid");
         }
 
-        const [balance, delegatee, votes] = await Promise.all([
+        const [balance, delegatee] = await Promise.all([
           token.balanceOf(walletAddress).catch((e: unknown) => {
             console.error("Error getting balance:", e);
             return "0";
@@ -90,10 +97,6 @@ export default function Dashboard() {
             console.error("Error getting delegatee:", e);
             return "0x0";
           }),
-          token.getVotes(walletAddress, currentBlock).catch((e: unknown) => {
-            console.error("Error getting votes:", e);
-            return "0";
-          }),
         ]);
 
         const debugData = {
@@ -101,8 +104,9 @@ export default function Dashboard() {
           walletAddress,
           balance: balance.toString(),
           delegatee,
-          votes: votes.toString(),
+          votes: votingPower,
           timestamp: new Date().toISOString(),
+          blockNumber,
         };
 
         setDebugInfo(debugData);
@@ -175,15 +179,21 @@ export default function Dashboard() {
         window.ethereum
       );
       const token = getContract(CONTRACT_ADDRESSES.token, TOKEN_ABI, provider);
-      // Get current block number
-      const currentBlock = await provider.getBlockNumber();
-      console.log("Current block:", currentBlock);
-      // Check votes at different block heights
+      // Get current block number and voting power using utility
+      const { blockNumber, votingPower } =
+        await getCurrentblockNumberAndVotingPower(
+          token,
+          walletAddress,
+          provider
+        );
+      console.log("Current block:", blockNumber);
+      console.log(`Current voting power: ${votingPower}`);
+      // Check votes at different block heights (historical)
       const blockChecks = [
-        currentBlock - 10,
-        currentBlock - 5,
-        currentBlock - 1,
-        currentBlock,
+        blockNumber - 10,
+        blockNumber - 5,
+        blockNumber - 1,
+        blockNumber,
       ];
       for (const blockNum of blockChecks) {
         if (blockNum > 0) {
@@ -212,9 +222,6 @@ export default function Dashboard() {
         "Is self-delegated:",
         delegatee.toLowerCase() === walletAddress.toLowerCase()
       );
-      // Check if delegation was recent
-      const latestVotes = await token.getVotes(walletAddress, "latest");
-      console.log("Latest votes:", latestVotes.toString());
       // For governance, we need to check at proposal snapshot
       console.log("=== SOLUTION ===");
       console.log("1. Wait a few blocks after delegation");
